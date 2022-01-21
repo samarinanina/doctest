@@ -395,7 +395,7 @@ DOCTEST_MSVC_SUPPRESS_WARNING(4623) // default constructor was implicitly define
 #endif // DOCTEST_PLATFORM
 
 namespace doctest { namespace detail {
-    static DOCTEST_CONSTEXPR int consume(const int*, int) { return 0; }
+    static DOCTEST_CONSTEXPR int consume(const int*, int) noexcept { return 0; }
 }}
 
 #define DOCTEST_GLOBAL_NO_WARNINGS(var, ...)                                                       \
@@ -1440,7 +1440,7 @@ DOCTEST_CLANG_SUPPRESS_WARNING_POP
         int         m_expected_failures = 0;
         double      m_timeout = 0;
 
-        TestSuite& operator*(const char* in);
+        TestSuite& operator*(const char* in) noexcept;
 
         template <typename T>
         TestSuite& operator*(const T& in) {
@@ -1460,7 +1460,7 @@ DOCTEST_CLANG_SUPPRESS_WARNING_POP
         String m_full_name; // contains the name (only for templated test cases!) + the template type
 
         TestCase(funcType test, const char* file, unsigned line, const TestSuite& test_suite,
-                 const char* type = "", int template_id = -1);
+                 const char* type = "", int template_id = -1) noexcept;
 
         TestCase(const TestCase& other);
 
@@ -1468,10 +1468,10 @@ DOCTEST_CLANG_SUPPRESS_WARNING_POP
         TestCase& operator=(const TestCase& other);
         DOCTEST_MSVC_SUPPRESS_WARNING_POP
 
-        TestCase& operator*(const char* in);
+        TestCase& operator*(const char* in) noexcept;
 
         template <typename T>
-        TestCase& operator*(const T& in) {
+        TestCase& operator*(const T& in) noexcept {
             in.fill(*this);
             return *this;
         }
@@ -1480,8 +1480,8 @@ DOCTEST_CLANG_SUPPRESS_WARNING_POP
     };
 
     // forward declarations of functions used by the macros
-    DOCTEST_INTERFACE int  regTest(const TestCase& tc);
-    DOCTEST_INTERFACE int  setTestSuite(const TestSuite& ts);
+    DOCTEST_INTERFACE int  regTest(const TestCase& tc) noexcept;
+    DOCTEST_INTERFACE int  setTestSuite(const TestSuite& ts) noexcept;
     DOCTEST_INTERFACE bool isDebuggerActive();
 
     template<typename T>
@@ -1777,7 +1777,7 @@ DOCTEST_CLANG_SUPPRESS_WARNING_POP
     struct name                                                                                    \
     {                                                                                              \
         type data;                                                                                 \
-        name(type in = def)                                                                        \
+        name(type in = def) noexcept                                                               \
                 : data(in) {}                                                                      \
         void fill(detail::TestCase& state) const { state.DOCTEST_CAT(m_, name) = data; }           \
         void fill(detail::TestSuite& state) const { state.DOCTEST_CAT(m_, name) = data; }          \
@@ -1807,7 +1807,7 @@ int registerExceptionTranslator(String (*translateFunction)(T)) {
 // in a separate namespace outside of doctest because the DOCTEST_TEST_SUITE macro
 // introduces an anonymous namespace in which getCurrentTestSuite gets overridden
 namespace doctest_detail_test_suite_ns {
-DOCTEST_INTERFACE doctest::detail::TestSuite& getCurrentTestSuite();
+DOCTEST_INTERFACE doctest::detail::TestSuite& getCurrentTestSuite() noexcept;
 } // namespace doctest_detail_test_suite_ns
 
 namespace doctest {
@@ -2140,7 +2140,7 @@ int registerReporter(const char* name, int priority, bool isReporter) {
 // for grouping tests in test suites by using code blocks
 #define DOCTEST_TEST_SUITE_IMPL(decorators, ns_name)                                               \
     namespace ns_name { namespace doctest_detail_test_suite_ns {                                   \
-            static DOCTEST_NOINLINE doctest::detail::TestSuite& getCurrentTestSuite() {            \
+            static DOCTEST_NOINLINE doctest::detail::TestSuite& getCurrentTestSuite() noexcept {   \
                 DOCTEST_MSVC_SUPPRESS_WARNING_WITH_PUSH(4640)                                      \
                 DOCTEST_CLANG_SUPPRESS_WARNING_WITH_PUSH("-Wexit-time-destructors")                \
                 DOCTEST_GCC_SUPPRESS_WARNING_WITH_PUSH("-Wmissing-field-initializers")             \
@@ -2150,7 +2150,7 @@ int registerReporter(const char* name, int priority, bool isReporter) {
                 DOCTEST_CLANG_SUPPRESS_WARNING_POP                                                 \
                 DOCTEST_GCC_SUPPRESS_WARNING_POP                                                   \
                 if(!inited) {                                                                      \
-                    data* decorators;                                                              \
+                    data * decorators;                                                             \
                     inited = true;                                                                 \
                 }                                                                                  \
                 return data;                                                                       \

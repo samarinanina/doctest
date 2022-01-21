@@ -915,7 +915,7 @@ int registerReporter(const char*, int, IReporter*) { return 0; }
 
 namespace doctest_detail_test_suite_ns {
 // holds the current test suite
-doctest::detail::TestSuite& getCurrentTestSuite() {
+doctest::detail::TestSuite& getCurrentTestSuite() noexcept {
     static doctest::detail::TestSuite data{};
     return data;
 }
@@ -1100,13 +1100,13 @@ namespace detail {
     ExpressionDecomposer::ExpressionDecomposer(assertType::Enum at)
             : m_at(at) {}
 
-    TestSuite& TestSuite::operator*(const char* in) {
+    TestSuite& TestSuite::operator*(const char* in) noexcept {
         m_test_suite = in;
         return *this;
     }
 
     TestCase::TestCase(funcType test, const char* file, unsigned line, const TestSuite& test_suite,
-                       const char* type, int template_id) {
+                       const char* type, int template_id) noexcept {
         m_file              = file;
         m_line              = line;
         m_name              = nullptr; // will be later overridden in operator*
@@ -1146,7 +1146,7 @@ namespace detail {
     }
     DOCTEST_MSVC_SUPPRESS_WARNING_POP
 
-    TestCase& TestCase::operator*(const char* in) {
+    TestCase& TestCase::operator*(const char* in) noexcept {
         m_name = in;
         // make a new name with an appended type for templated test case
         if(m_template_id != -1) {
@@ -1317,13 +1317,13 @@ namespace {
 
 namespace detail {
     // used by the macros for registering tests
-    int regTest(const TestCase& tc) {
+    int regTest(const TestCase& tc) noexcept {
         getRegisteredTests().insert(tc);
         return 0;
     }
 
     // sets the current test suite
-    int setTestSuite(const TestSuite& ts) {
+    int setTestSuite(const TestSuite& ts) noexcept {
         doctest_detail_test_suite_ns::getCurrentTestSuite() = ts;
         return 0;
     }
